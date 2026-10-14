@@ -9,7 +9,11 @@ log_file="$HOME/.local/state/agent-kit/backup.log"
 script_dir=$(cd "$(dirname "$0")" && pwd)
 
 if [[ ! -f $env_file ]]; then
-  printf 'run backup.sh --init first\n' >&2
+  if [[ ${1:-} == --init ]]; then
+    printf 'Create %s with mode 600 and set RESTIC_REPOSITORY, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY.\n' "$env_file" >&2
+  else
+    printf 'run backup.sh --init first\n' >&2
+  fi
   exit 1
 fi
 set -a

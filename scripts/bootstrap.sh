@@ -22,6 +22,14 @@ if ! id "$username" >/dev/null 2>&1; then
 else
   usermod --append --groups sudo "$username"
 fi
+sudoers_file="/etc/sudoers.d/90-agent-kit-$username"
+sudoers_tmp=$(mktemp "/etc/sudoers.d/.90-agent-kit-$username.XXXXXX")
+trap '[[ -z ${sudoers_tmp:-} ]] || rm -f -- "$sudoers_tmp"' EXIT
+printf '%s ALL=(ALL) NOPASSWD:ALL\n' "$username" > "$sudoers_tmp"
+chmod 440 "$sudoers_tmp"
+visudo -cf "$sudoers_tmp"
+mv -f -- "$sudoers_tmp" "$sudoers_file"
+sudoers_tmp=
 install -d -m 700 -o "$username" -g "$username" "$user_home/.ssh"
 if [[ -f /root/.ssh/authorized_keys ]]; then
   install -m 600 -o "$username" -g "$username" /root/.ssh/authorized_keys "$user_home/.ssh/authorized_keys"
