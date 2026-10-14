@@ -14,8 +14,20 @@ user_home="/home/$username"
 kit_dir="$user_home/agent-kit"
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get install -y git tmux python3 python3-venv curl unzip bzip2 shellcheck restic cron sudo ufw openssl
+apt_update_deadline=$((SECONDS + 600))
+while true; do
+  if apt-get update; then
+    break
+  fi
+  remaining=$((apt_update_deadline - SECONDS))
+  if (( remaining <= 0 )); then
+    printf 'apt-get update failed after waiting up to 10 minutes for another package install to finish.\n' >&2
+    exit 1
+  fi
+  printf 'Waiting for another package install to finish...\n'
+  sleep "$((remaining < 10 ? remaining : 10))"
+done
+apt-get -o DPkg::Lock::Timeout=600 install -y git tmux python3 python3-venv curl unzip bzip2 shellcheck restic cron sudo ufw openssl
 
 if ! id "$username" >/dev/null 2>&1; then
   useradd --create-home --shell /bin/bash --groups sudo "$username"
