@@ -1,0 +1,4 @@
+.cache
+.local/share/Trash
+.local/state/agent-kit/backup.log
+.config/restic/password

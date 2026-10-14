@@ -1,0 +1,49 @@
+version: 1
+layers: [shared, app, around, retire]
+flow: [kit]
+kinds:
+  code: {controls: [registration]}
+  test: {controls: [registration]}
+  prompt: {controls: [registration]}
+  doc: {controls: [registration, doc_references]}
+  data: {controls: [registration]}
+  config: {controls: [registration]}
+controls:
+  registration: {rule: Every tracked file has one owner, kind and control., enforced_by: check}
+  schema: {rule: Declaration references resolve., enforced_by: check}
+  named_paths: {rule: Named paths exist., enforced_by: check}
+  doc_references: {rule: Docs cite paths that exist., enforced_by: check}
+modules:
+- id: kit
+  name: Participant kit
+  layer: app
+  purpose: Installs participant instructions and scripts for planning, building and maintaining projects on an Ubuntu server.
+  home: [home, scripts, templates]
+  owns_data: []
+  contract: scripts/bootstrap.sh:main installs the participant kit and scripts provide project, task and backup operations.
+  source_of_truth: [home/.claude/CLAUDE.md, home/.claude/skills/plan/SKILL.md, home/.claude/skills/work/SKILL.md, home/.claude/agents/builder.md]
+  reads: []
+  does_not: ["Publish the Agent Field Guide site: around"]
+  files:
+  - {glob: "home/**", kind: config}
+  - {glob: "scripts/**", kind: code}
+  - {glob: "templates/**", kind: doc}
+- id: around
+  name: Repo records
+  layer: around
+  purpose: Declares repository architecture and provides repository setup, documentation and validation.
+  home: []
+  owns_data: []
+  contract: tests/architecture.sh
+  source_of_truth: [architecture.yaml]
+  reads: []
+  does_not: ["Install participant configuration: kit"]
+  files:
+  - {glob: "architecture.yaml", kind: config}
+  - {glob: "architecture.lock", kind: config}
+  - {glob: "CLAUDE.md", kind: doc}
+  - {glob: "AGENTS.md", kind: doc}
+  - {glob: "README.md", kind: doc}
+  - {glob: "LICENSE", kind: doc}
+  - {glob: ".gitignore", kind: config}
+  - {glob: "tests/**", kind: test}
