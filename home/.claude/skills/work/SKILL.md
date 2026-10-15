@@ -14,5 +14,5 @@ description: "Build an approved plan with the builder subagent, check it and mer
    - Look for changes the plan did not ask for.
 5. If a check fails or the diff is wrong, send the builder back with the exact defect and required correction, then repeat the checks in step 4. After two correction rounds without a pass, stop and tell me. If the fix changes the approved scope, return to the plan skill for approval.
 6. When every check passes, write `work/wNN_<slug>/work_report.md` in the worktree: what changed, each check with its result, and anything left undone. Commit it with the updated log and build report; confirm the worktree is clean.
-7. Merge: `~/agent-kit/scripts/task-finish.sh <project> wNN_<slug>`. After success, append "Merged" to `log.md` in the project and commit that log. If the script fails, report its error without claiming a merge.
+7. Merge from the project folder (the script deletes the worktree): `cd ~/projects/<project> && ~/agent-kit/scripts/task-finish.sh <project> wNN_<slug>`. After success, append "Merged" to `log.md` in the project and commit that log. If the script fails, report its error without claiming a merge.
 8. Tell me what changed, the checks and their results, and anything I should look at.
