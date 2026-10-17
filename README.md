@@ -1,6 +1,6 @@
 # agent-kit
 
-The starter kit for the Agent Field Guide helps you plan and build projects with AI agents on your own Ubuntu server. It installs participant instructions, project setup scripts and nightly backup tools. Read the [Agent Field Guide](https://agentfieldguide.org/) for the walkthrough.
+The starter kit for the Agent Fleet Guide helps you plan and build projects with AI agents on your own Ubuntu server. It installs participant instructions, project setup scripts and nightly backup tools. Read the [Agent Fleet Guide](https://agentfleetguide.com/) for the walkthrough.
 
 On a fresh Ubuntu 24.04 server, connect as root using the server's IP address in place of `$SERVER_IP`, then run the three commands:
 

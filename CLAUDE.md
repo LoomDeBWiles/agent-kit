@@ -1,6 +1,6 @@
 # agent-kit
 
-The starter kit for the Agent Field Guide (agentfieldguide.org): what a participant clones onto a fresh Ubuntu server. `home/.claude/` is installed into the participant's `~/.claude/` by `scripts/bootstrap.sh`; edit those files as the participant's instructions, not as instructions for this repo. Keep the participant method small: Opus plans and checks, the learner approves, and the Haiku builder edits in a worktree. Keep participant instructions consistent with the scripts they invoke. MIT licensed.
+The starter kit for the Agent Fleet Guide (agentfleetguide.com): what a participant clones onto a fresh Ubuntu server. `home/.claude/` is installed into the participant's `~/.claude/` by `scripts/bootstrap.sh`; edit those files as the participant's instructions, not as instructions for this repo. Keep the participant method small: Opus plans and checks, the learner approves, and the Haiku builder edits in a worktree. Keep participant instructions consistent with the scripts they invoke. MIT licensed.
 
 ## Architecture
 

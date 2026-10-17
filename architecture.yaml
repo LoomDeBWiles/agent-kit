@@ -24,7 +24,7 @@ modules:
   contract: scripts/bootstrap.sh:main installs the participant kit and scripts provide project, task and backup operations.
   source_of_truth: [home/.claude/CLAUDE.md, home/.claude/skills/plan/SKILL.md, home/.claude/skills/work/SKILL.md, home/.claude/agents/builder.md]
   reads: []
-  does_not: ["Publish the Agent Field Guide site: around"]
+  does_not: ["Publish the Agent Fleet Guide site: around"]
   files:
   - {glob: "home/**", kind: config}
   - {glob: "scripts/**", kind: code}
