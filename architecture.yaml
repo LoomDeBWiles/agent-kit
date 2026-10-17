@@ -2,9 +2,9 @@ version: 1
 layers: [shared, app, around, retire]
 flow: [kit]
 kinds:
-  code: {controls: [registration]}
-  test: {controls: [registration]}
-  prompt: {controls: [registration]}
+  code: {controls: [registration, home]}
+  test: {controls: [registration, home]}
+  prompt: {controls: [registration, home]}
   doc: {controls: [registration, doc_references]}
   data: {controls: [registration]}
   config: {controls: [registration]}
@@ -13,12 +13,13 @@ controls:
   schema: {rule: Declaration references resolve., enforced_by: check}
   named_paths: {rule: Named paths exist., enforced_by: check}
   doc_references: {rule: Docs cite paths that exist., enforced_by: check}
+  home: {rule: Code, tests and prompts sit in their module's home., enforced_by: check}
 modules:
 - id: kit
   name: Participant kit
   layer: app
   purpose: Installs participant instructions and scripts for planning, building and maintaining projects on an Ubuntu server.
-  home: [home, scripts, templates]
+  home: scripts
   owns_data: []
   contract: scripts/bootstrap.sh:main installs the participant kit and scripts provide project, task and backup operations.
   source_of_truth: [home/.claude/CLAUDE.md, home/.claude/skills/plan/SKILL.md, home/.claude/skills/work/SKILL.md, home/.claude/agents/builder.md]
@@ -32,7 +33,7 @@ modules:
   name: Repo records
   layer: around
   purpose: Declares repository architecture and provides repository setup, documentation and validation.
-  home: []
+  home: tests
   owns_data: []
   contract: tests/architecture.sh
   source_of_truth: [architecture.yaml]
@@ -41,6 +42,8 @@ modules:
   files:
   - {glob: "architecture.yaml", kind: config}
   - {glob: "architecture.lock", kind: config}
+  - {glob: "architecture_moves.json", kind: data}
+  - {glob: ".worktree-check", kind: config}
   - {glob: "CLAUDE.md", kind: doc}
   - {glob: "AGENTS.md", kind: doc}
   - {glob: "README.md", kind: doc}
