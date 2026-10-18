@@ -1,6 +1,6 @@
 version: 1
 layers: [shared, app, around, retire]
-flow: [kit]
+flow: [install, method, scripts]
 kinds:
   code: {controls: [registration, home]}
   test: {controls: [registration, home]}
@@ -15,38 +15,95 @@ controls:
   doc_references: {rule: Docs cite paths that exist., enforced_by: check}
   home: {rule: Code, tests and prompts sit in their module's home., enforced_by: check}
 modules:
-- id: kit
-  name: Participant kit
+- id: install
+  name: Server install
   layer: app
-  purpose: Installs participant instructions and scripts for planning, building and maintaining projects on an Ubuntu server.
+  purpose: Hides how a fresh Ubuntu server is provisioned as root (packages, participant user and sudo, SSH and firewall, kit clone at ~/agent-kit, ~/.claude links to the method files) and gives Ben's guide and course pipeline one bootstrap command.
+  home: install
+  owns_data: []
+  contract:
+  - {cli: install/bootstrap.sh, verified_by: install/tests/test_bootstrap.sh}
+  source_of_truth: []
+  reads:
+  - {module: method, artifact: home/.claude/CLAUDE.md}
+  - {module: method, artifact: home/.claude/settings.json}
+  - {module: method, artifact: home/.claude/skills/plan/SKILL.md}
+  - {module: method, artifact: home/.claude/skills/work/SKILL.md}
+  - {module: method, artifact: home/.claude/agents/builder.md}
+  does_not:
+  - {job: "Define how work items are planned, approved and built", owner: method}
+  - {job: "Create projects or worktrees, merge work or run backups on the participant account", owner: scripts}
+  - {job: Provision course droplets and drive lesson runs, owner: "agent-course:pipeline"}
+  files:
+  - {glob: "install/bootstrap.sh", kind: code}
+  - {glob: "install/tests/**", kind: test}
+- id: method
+  name: Participant method
+  layer: app
+  purpose: Hides how the participant's agents work (Opus plans, the learner approves, the Haiku builder edits in a worktree, work records under work/wNN_slug) and publishes the instruction files the installer links into ~/.claude.
+  home: home/.claude
+  owns_data: [home/.claude/settings.json]
+  contract:
+  - {doc: home/.claude/CLAUDE.md}
+  - {doc: home/.claude/skills/plan/SKILL.md}
+  - {doc: home/.claude/skills/work/SKILL.md}
+  - {doc: home/.claude/agents/builder.md}
+  - {data: home/.claude/settings.json, verified_by: install/tests/test_bootstrap.sh}
+  source_of_truth: [home/.claude/CLAUDE.md, home/.claude/skills/plan/SKILL.md, home/.claude/skills/work/SKILL.md, home/.claude/agents/builder.md]
+  reads:
+  - {module: scripts, artifact: scripts/new-project.sh}
+  - {module: scripts, artifact: scripts/task-start.sh}
+  - {module: scripts, artifact: scripts/task-finish.sh}
+  - {module: scripts, artifact: scripts/backup.sh}
+  does_not:
+  - {job: "Run git init, worktree, merge or branch commands of its own instead of the task scripts", owner: scripts}
+  - {job: "Install packages, users or ~/.claude links on the server", owner: install}
+  files:
+  - {glob: "home/.claude/CLAUDE.md", kind: prompt}
+  - {glob: "home/.claude/skills/**", kind: prompt}
+  - {glob: "home/.claude/agents/**", kind: prompt}
+  - {glob: "home/.claude/settings.json", kind: config}
+  - {glob: "home/.claude/tests/**", kind: test}
+- id: scripts
+  name: Server commands
+  layer: app
+  purpose: Hides the participant-side filesystem layout and git and backup mechanics (~/projects/<name>, ~/worktrees/<name>/<wNN_slug>, fast-forward merge and cleanup, project template, restic schedule and retention) behind four commands the method calls by path.
   home: scripts
   owns_data: []
-  contract: scripts/bootstrap.sh:main installs the participant kit and scripts provide project, task and backup operations.
-  source_of_truth: [home/.claude/CLAUDE.md, home/.claude/skills/plan/SKILL.md, home/.claude/skills/work/SKILL.md, home/.claude/agents/builder.md]
+  contract:
+  - {cli: scripts/new-project.sh, verified_by: home/.claude/tests/test_commands.sh}
+  - {cli: scripts/task-start.sh, verified_by: home/.claude/tests/test_commands.sh}
+  - {cli: scripts/task-finish.sh, verified_by: home/.claude/tests/test_commands.sh}
+  - {cli: scripts/backup.sh, verified_by: home/.claude/tests/test_commands.sh}
+  source_of_truth: []
   reads: []
-  does_not: ["Publish the Agent Fleet Guide site: around"]
+  does_not:
+  - {job: Decide when a change is planned, approved or built, owner: method}
+  - {job: Provision the server, harden SSH or configure the firewall, owner: install}
   files:
-  - {glob: "home/**", kind: config}
-  - {glob: "scripts/**", kind: code}
+  - {glob: "scripts/*.sh", kind: code}
+  - {glob: "scripts/excludes", kind: config}
   - {glob: "templates/**", kind: doc}
 - id: around
   name: Repo records
   layer: around
-  purpose: Declares repository architecture and provides repository setup, documentation and validation.
+  purpose: Repo instructions, README, license, root config, the declaration and lock, the merge gate and the architecture test.
   home: tests
   owns_data: []
-  contract: tests/architecture.sh
-  source_of_truth: [architecture.yaml]
+  contract:
+  - {none: repo records have no consumers; .worktree-check runs tests/architecture.sh inside this module}
+  source_of_truth: [architecture.yaml, CLAUDE.md]
   reads: []
-  does_not: ["Install participant configuration: kit"]
+  does_not:
+  - {job: Participant instructions installed into ~/.claude, owner: method}
+  - {job: Server provisioning and participant commands, owner: install}
   files:
   - {glob: "architecture.yaml", kind: config}
   - {glob: "architecture.lock", kind: config}
-  - {glob: "architecture_moves.json", kind: data}
   - {glob: ".worktree-check", kind: config}
+  - {glob: ".gitignore", kind: config}
   - {glob: "CLAUDE.md", kind: doc}
   - {glob: "AGENTS.md", kind: doc}
   - {glob: "README.md", kind: doc}
   - {glob: "LICENSE", kind: doc}
-  - {glob: ".gitignore", kind: config}
   - {glob: "tests/**", kind: test}

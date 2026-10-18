@@ -7,7 +7,7 @@ On a fresh Ubuntu 24.04 server, connect as root using the server's IP address in
 ```sh
 ssh root@$SERVER_IP
 git clone https://github.com/LoomDeBWiles/agent-kit /tmp/agent-kit
-bash /tmp/agent-kit/scripts/bootstrap.sh <username>
+bash /tmp/agent-kit/install/bootstrap.sh <username>
 ```
 
 After bootstrap, sign in as the new user, start `claude`, and follow the plan skill before making project changes.
