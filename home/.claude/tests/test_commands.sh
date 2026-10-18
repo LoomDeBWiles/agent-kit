@@ -30,7 +30,7 @@ bash "$new_project" 'bad name' >"$tmp/new-invalid.out" 2>"$tmp/new-invalid.err" 
 grep -F 'Usage:' "$tmp/new-invalid.err"
 start_output=$(bash "$task_start" demo w01_add-thing)
 [[ ${start_output##*$'\n'} == "$HOME/worktrees/demo/w01_add-thing" ]]
-[[ -d $HOME/worktrees/demo/w01_add-thing/.git ]]
+[[ -e $HOME/worktrees/demo/w01_add-thing/.git ]]
 [[ $(git -C "$HOME/worktrees/demo/w01_add-thing" branch --show-current) == w01_add-thing ]]
 [[ $(git -C "$HOME/worktrees/demo/w01_add-thing" rev-parse HEAD) == $(git -C "$HOME/projects/demo" rev-parse main) ]]
 status=0

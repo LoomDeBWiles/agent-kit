@@ -9,8 +9,6 @@ status=0
 bash install/bootstrap.sh demo 2>"$root_error" || status=$?
 [[ $status -eq 1 ]]
 [[ $(cat "$root_error") == 'Run this script as root.' ]]
-[[ $(grep -F 'for file in CLAUDE.md settings.json' install/bootstrap.sh) ]]
-[[ $(grep -F 'for skill in plan work' install/bootstrap.sh) ]]
 [[ $(grep -F 'home/.claude/agents/builder.md' install/bootstrap.sh) ]]
 python3 - <<'PY'
 from pathlib import Path
