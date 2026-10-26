@@ -75,6 +75,7 @@ modules:
   - {cli: scripts/task-start.sh, verified_by: home/.claude/tests/test_commands.sh}
   - {cli: scripts/task-finish.sh, verified_by: home/.claude/tests/test_commands.sh}
   - {cli: scripts/backup.sh, verified_by: home/.claude/tests/test_commands.sh}
+  - {cli: scripts/backup-key.sh, verified_by: install/tests/test_backup_key.sh}
   source_of_truth: []
   reads: []
   does_not:
