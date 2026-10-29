@@ -113,17 +113,25 @@ bash "$backup" --init
 [[ $(stat -c %a "$HOME/.config/agent-kit/excludes") == 600 ]]
 cmp "$HOME/.config/agent-kit/excludes" "$repo/scripts/excludes"
 grep -F "init|$HOME/.config/restic/password" "$RESTIC_LOG"
-[[ $(grep -Fxc "15 3 * * * $HOME/agent-kit/scripts/backup.sh" "$CRONTAB_FILE") -eq 1 ]]
+[[ $(grep -Fxc "*/30 * * * * $HOME/agent-kit/scripts/backup.sh" "$CRONTAB_FILE") -eq 1 ]]
+printf '0 9 * * * other-job\n15 3 * * * %s/agent-kit/scripts/backup.sh\n' "$HOME" > "$CRONTAB_FILE"
 bash "$backup" --init
-[[ $(grep -Fxc "15 3 * * * $HOME/agent-kit/scripts/backup.sh" "$CRONTAB_FILE") -eq 1 ]]
+[[ $(grep -Fxc "*/30 * * * * $HOME/agent-kit/scripts/backup.sh" "$CRONTAB_FILE") -eq 1 ]]
+[[ $(grep -c 'agent-kit/scripts/backup.sh' "$CRONTAB_FILE") -eq 1 ]]
+grep -Fx '0 9 * * * other-job' "$CRONTAB_FILE"
 : > "$RESTIC_LOG"
 bash "$backup"
 grep -F "backup $HOME --exclude-caches --exclude-file $HOME/.config/agent-kit/excludes|$HOME/.config/restic/password" "$RESTIC_LOG"
-grep -F 'forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune|' "$RESTIC_LOG"
+grep -F 'forget --keep-within 2h --keep-hourly 24 --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --keep-yearly 2 --prune|' "$RESTIC_LOG"
 grep -F 'check|' "$RESTIC_LOG"
 last_backup=$(tail -n 1 "$HOME/.local/state/agent-kit/backup.log")
 [[ $last_backup == *' backup ok' ]]
 [[ $(bash "$backup" --status) == "$last_backup" ]]
+: > "$RESTIC_LOG"
+mkdir -p "$HOME/.local/state/agent-kit"
+flock "$HOME/.local/state/agent-kit/backup.lock" bash "$backup"
+[[ ! -s $RESTIC_LOG ]]
+[[ $(tail -n 1 "$HOME/.local/state/agent-kit/backup.log") == "$last_backup" ]]
 export RESTIC_STUB_STATUS=3
 status=0
 bash "$backup" >"$tmp/backup-fail.out" 2>"$tmp/backup-fail.err" || status=$?

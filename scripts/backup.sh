@@ -6,6 +6,7 @@ env_file="$config_dir/backup.env"
 password_file="$HOME/.config/restic/password"
 exclude_file="$config_dir/excludes"
 log_file="$HOME/.local/state/agent-kit/backup.log"
+lock_file="$HOME/.local/state/agent-kit/backup.lock"
 script_dir=$(cd "$(dirname "$0")" && pwd)
 
 if [[ ! -f $env_file ]]; then
@@ -41,14 +42,16 @@ if [[ ${1:-} == --init ]]; then
   fi
   export RESTIC_PASSWORD_FILE=$password_file
   restic init
-  existing_cron=$(crontab -l 2>/dev/null || true)
-  printf '%s\n15 3 * * * %s/scripts/backup.sh\n' "$existing_cron" "$HOME/agent-kit" | awk '!seen[$0]++' | crontab -
+  other_cron=$(crontab -l 2>/dev/null | grep -vF "$HOME/agent-kit/scripts/backup.sh" || true)
+  printf '%s\n*/30 * * * * %s/scripts/backup.sh\n' "$other_cron" "$HOME/agent-kit" | sed '/^$/d' | crontab -
   exit 0
 fi
 
 export RESTIC_PASSWORD_FILE=$password_file
 mkdir -p "$(dirname "$log_file")"
-if restic backup "$HOME" --exclude-caches --exclude-file "$exclude_file" && restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 6 --prune && restic check; then
+exec 9>"$lock_file"
+flock -n 9 || exit 0
+if restic backup "$HOME" --exclude-caches --exclude-file "$exclude_file" && restic forget --keep-within 2h --keep-hourly 24 --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --keep-yearly 2 --prune && restic check; then
   printf '%s backup ok\n' "$(date --iso-8601=seconds)" >> "$log_file"
 else
   status=$?

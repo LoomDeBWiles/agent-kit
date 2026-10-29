@@ -25,4 +25,4 @@ I own this server. You run on Opus and plan and check; a builder subagent runnin
 - Projects: `~/projects/<name>`, one git repo each. Read its `context/INDEX.md` first.
 - Work records: `~/projects/<name>/work/wNN_<slug>/` holds the plan, log and reports.
 - Worktrees: `~/worktrees/<name>/wNN_<slug>`, one per work item.
-- Backups: `~/agent-kit/scripts/backup.sh --status` shows the last nightly backup.
+- Backups: `~/agent-kit/scripts/backup.sh --status` shows the last backup; backups run every 30 minutes.
